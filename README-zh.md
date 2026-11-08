@@ -21,7 +21,7 @@ CNKI has no public API for this purpose. This plugin therefore **does not** log 
 - **`cnki_cite`** — GB/T 7714-2015 顺序编码制 (`[1] 作者. 题名[J]. 刊名, 年, 卷(期): 页码.`), the same without numbering, or APA 7. Author rules: GB/T ≤3 all, otherwise first 3 + `等`/`et al`; Western names become `SURNAME I`; APA becomes `Surname, I.`.
 - **`cnki_check`** — structural validation: missing title/journal/year/authors, implausible year, malformed DOI, non-numeric pages, duplicates, journal without volume or issue.
 
-## 它做什么 not do
+## 它不做什么
 
 - **No CNKI access.** No login, no cookies, no scraping, no unofficial endpoints.
 - **No content verification.** It does not check that the record matches the real paper; use `dsh-cite-verify` for DOIs.
@@ -90,7 +90,7 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 
 ## 评测
 
-**18 tests**: RIS and labeled parsing (Chinese and English records, DOI-based ids, language detection), auto-detection and empty/unrecognized rejection, GB/T journal citation with en-dash pages, ≤3 vs >3 author rules (等 / et al), missing-journal marker, thesis marker, sequential numbering, APA author/year/journal/volume/DOI, validation codes (missing title/journal, implausible year, malformed DOI, odd pages, duplicates), runtime (valid REP record, cite/check, traversal/DOCX/oversize rejection), tool schemas, import→cite→check end to end, failure branches, package contract.
+**23 tests**: RIS and labeled parsing (Chinese and English records, CRLF/BOM exports, DOI-based ids, language detection), auto-detection and empty/unrecognized rejection, GB/T journal citation with en-dash pages, ≤3 vs >3 author rules (等 / et al), missing-journal marker, thesis marker, sequential numbering, APA author/year/journal/volume/DOI, validation codes (missing title/journal, implausible year including far-future dates, malformed DOI, odd pages, duplicates), runtime (valid REP record, cite/check, traversal/symlink/DOCX/oversize rejection, malformed records and `null` text rejected), tool schemas, import→cite→check end to end, failure branches, plugin contract, package contract.
 
 No benchmark is claimed: the ground truth is your export; correctness of the formatter is checked against the GB/T rules above with fixtures.
 

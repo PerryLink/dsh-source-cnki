@@ -81,6 +81,18 @@ describe('import', () => {
     expect(() => importRecords('   ')).toThrow(ImportError)
     expect(() => importRecords('just a sentence with no fields')).toThrow(/no records/u)
   })
+
+  it('parses CRLF exports and strips a leading UTF-8 BOM', () => {
+    const ris = `\uFEFF${RIS.replace(/\n/gu, '\r\n')}`
+    const fromRis = parseRis(ris)
+    expect(fromRis).toHaveLength(2)
+    expect(fromRis[0]!.title).toContain('测试论文')
+    const labeled = `\uFEFF${LABELED.replace(/\n/gu, '\r\n')}`
+    const fromLabeled = parseLabeled(labeled)
+    expect(fromLabeled).toHaveLength(2)
+    expect(fromLabeled[0]!.journal).toBe('情报学报')
+    expect(importRecords(ris)).toHaveLength(2)
+  })
 })
 
 describe('GB/T 7714', () => {
@@ -144,5 +156,11 @@ describe('validation', () => {
     const record = parseRis(RIS)[0]!
     const result = validateRecords([record, record])
     expect(result.issues.some(issue => issue.code === 'duplicate')).toBe(true)
+  })
+
+  it('rejects a far-future year instead of accepting anything below a fixed 2100', () => {
+    const record = parseRis(RIS)[0]!
+    const result = validateRecords([{ ...record, year: new Date().getUTCFullYear() + 2 }])
+    expect(result.issues.some(issue => issue.code === 'implausible_year')).toBe(true)
   })
 })

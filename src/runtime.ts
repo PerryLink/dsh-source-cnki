@@ -67,6 +67,35 @@ function isInside(root: string, candidate: string): boolean {
   return candidate === root || candidate.startsWith(root.endsWith(path.sep) ? root : `${root}${path.sep}`)
 }
 
+/** Validate record objects arriving from the tool's JSON boundary. */
+function assertRecords(value: unknown): BibRecord[] {
+  if (!Array.isArray(value) || value.length === 0) throw new SourceError('INVALID_INPUT', 'pass at least one record')
+  for (const item of value) {
+    if (typeof item !== 'object' || item === null) throw new SourceError('INVALID_INPUT', 'every record must be an object from cnki_import')
+    const record = item as Partial<BibRecord>
+    if (typeof record.recordId !== 'string' || typeof record.title !== 'string') {
+      throw new SourceError('INVALID_INPUT', 'every record needs recordId and title strings')
+    }
+    if (!Array.isArray(record.authors) || !record.authors.every(author => typeof author === 'string')) {
+      throw new SourceError('INVALID_INPUT', 'record.authors must be an array of strings')
+    }
+    if (record.type !== 'journal' && record.type !== 'thesis' && record.type !== 'conference' && record.type !== 'book' && record.type !== 'other') {
+      throw new SourceError('INVALID_INPUT', 'record.type must be journal, thesis, conference, book or other')
+    }
+    if (record.language !== 'zh' && record.language !== 'en' && record.language !== 'unknown') {
+      throw new SourceError('INVALID_INPUT', 'record.language must be zh, en or unknown')
+    }
+    for (const field of ['journal', 'volume', 'issue', 'pages', 'doi', 'abstract'] as const) {
+      if (record[field] !== undefined && typeof record[field] !== 'string') throw new SourceError('INVALID_INPUT', `record.${field} must be a string when present`)
+    }
+    if (record.year !== undefined && typeof record.year !== 'number') throw new SourceError('INVALID_INPUT', 'record.year must be a number when present')
+    if (record.keywords !== undefined && (!Array.isArray(record.keywords) || !record.keywords.every(keyword => typeof keyword === 'string'))) {
+      throw new SourceError('INVALID_INPUT', 'record.keywords must be an array of strings when present')
+    }
+  }
+  return value as BibRecord[]
+}
+
 /** The runtime. */
 export class SourceRuntime {
   readonly config: ResolvedConfig
@@ -122,6 +151,9 @@ export class SourceRuntime {
    */
   async import(request: { text?: string; path?: string; format?: 'auto' | 'ris' | 'labeled'; persist?: boolean }): Promise<ImportValue> {
     if ((request.text === undefined) === (request.path === undefined)) throw new SourceError('INVALID_INPUT', 'pass exactly one of text or path')
+    if (request.text !== undefined && typeof request.text !== 'string') throw new SourceError('INVALID_INPUT', 'text must be a string')
+    const format = request.format ?? 'auto'
+    if (format !== 'auto' && format !== 'ris' && format !== 'labeled') throw new SourceError('INVALID_INPUT', 'format must be auto, ris or labeled')
     let text: string
     let sourceRef: AddEvidenceInput['sourceRef']
     let id: string
@@ -140,7 +172,7 @@ export class SourceRuntime {
     }
     let records: BibRecord[]
     try {
-      records = importRecords(text, request.format ?? 'auto')
+      records = importRecords(text, format)
     } catch (error) {
       if (error instanceof ImportError) throw new SourceError(error.code === 'NO_RECORDS' ? 'NO_RECORDS' : 'INVALID_INPUT', error.message)
       throw error
@@ -202,8 +234,13 @@ export class SourceRuntime {
    * @returns the formatted citations.
    */
   cite(records: readonly BibRecord[], options: CiteOptions = {}): string[] {
-    if (!Array.isArray(records) || records.length === 0) throw new SourceError('INVALID_INPUT', 'pass at least one record')
-    return formatBibliography(records, { ...options, style: options.style ?? this.config.style })
+    const safeRecords = assertRecords(records)
+    const style = options.style ?? this.config.style
+    if (style !== 'gbt7714' && style !== 'gbt7714-numeric' && style !== 'apa') throw new SourceError('INVALID_INPUT', 'style must be gbt7714, gbt7714-numeric or apa')
+    if (options.startIndex !== undefined && (!Number.isSafeInteger(options.startIndex) || options.startIndex < 1)) {
+      throw new SourceError('INVALID_INPUT', 'startIndex must be a positive integer')
+    }
+    return formatBibliography(safeRecords, { ...options, style })
   }
 
   /**
@@ -212,7 +249,6 @@ export class SourceRuntime {
    * @returns the validation result.
    */
   check(records: readonly BibRecord[]): ValidationResult {
-    if (!Array.isArray(records) || records.length === 0) throw new SourceError('INVALID_INPUT', 'pass at least one record')
-    return validateRecords(records)
+    return validateRecords(assertRecords(records))
   }
 }

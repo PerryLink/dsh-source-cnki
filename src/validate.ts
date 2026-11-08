@@ -34,7 +34,9 @@ const DOI_PATTERN = /^10\.\d{4,9}\/\S+$/u
 export function validateRecords(records: readonly BibRecord[]): ValidationResult {
   const issues: RecordIssue[] = []
   const seen = new Map<string, number>()
-  const currentYear = 2100
+  // Accept the current year plus one for in-press records, and reject anything
+  // further out instead of using a fixed far-future bound.
+  const currentYear = new Date().getUTCFullYear() + 1
   for (const record of records) {
     const count = (seen.get(record.recordId) ?? 0) + 1
     seen.set(record.recordId, count)

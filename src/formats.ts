@@ -95,6 +95,11 @@ function clean(value: string): string {
   return value.trim().replace(/^[：:]\s*/u, '').replace(/\s+/gu, ' ')
 }
 
+/** Normalize export line endings and strip a leading UTF-8 BOM. */
+function normalizeExport(text: string): string {
+  return text.replace(/^\uFEFF/u, '').replace(/\r\n?/gu, '\n')
+}
+
 /** Split authors on common delimiters. */
 function authorsOf(value: string): string[] {
   return clean(value)
@@ -141,7 +146,7 @@ export function parseRis(text: string): BibRecord[] {
   const records: BibRecord[] = []
   let fields = new Map<string, string[]>()
   let inRecord = false
-  for (const line of text.split('\n')) {
+  for (const line of normalizeExport(text).split('\n')) {
     const match = /^([A-Z][A-Z0-9])\s{2}-\s?(.*)$/u.exec(line)
     if (match === null) {
       if (inRecord && line.trim() !== '' && fields.size > 0) {
@@ -189,7 +194,7 @@ export function parseRis(text: string): BibRecord[] {
  */
 export function parseLabeled(text: string): BibRecord[] {
   const records: BibRecord[] = []
-  for (const block of text.split(/\n\s*\n/u)) {
+  for (const block of normalizeExport(text).split(/\n\s*\n/u)) {
     const fields = new Map<string, string[]>()
     for (const line of block.split('\n')) {
       const match = /^\s*([^：:]{1,12})\s*[：:]\s*(.+)$/u.exec(line)

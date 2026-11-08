@@ -6,6 +6,24 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `cnki_cite`/`cnki_check` now validate imported record objects and return
+  `INVALID_INPUT` for malformed JSON payloads instead of throwing a `TypeError`.
+- `cnki_import` rejects non-string `text` and unknown `format` values at the
+  runtime boundary; `cnki_cite` rejects `startIndex < 1`.
+- The implausible-year check used a hard-coded upper bound of 2100; it now
+  accepts the current year plus one and rejects genuinely far-future dates.
+- RIS and labeled parsers normalize CRLF/CR line endings and strip a leading
+  UTF-8 BOM. Windows-authored exports previously produced zero records (RIS) or
+  lost the first field (labeled).
+
+### Added
+
+- Tests for malformed records, `null` text, invalid `startIndex`, symlink
+  escape, far-future years, CRLF/BOM exports, and the function-plugin mount
+  contract (23 tests total).
+
 ## [0.1.0] - 2026-11-08
 
 First release: Chinese-literature export import and citation formatting.

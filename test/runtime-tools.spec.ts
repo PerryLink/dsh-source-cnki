@@ -3,7 +3,7 @@
  * @module test/runtime-tools.spec
  */
 
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { validateRep } from '@perrylink/dsh-research-core'
@@ -77,6 +77,17 @@ describe('runtime', () => {
     await expect(tiny.import({ text: RIS })).rejects.toMatchObject({ code: 'TOO_LARGE' })
     await expect(runtime().import({ text: '   ' })).rejects.toBeInstanceOf(Error)
   })
+
+  it.runIf(process.platform !== 'win32')('rejects a symlink that escapes the workspace', async () => {
+    const outside = await mkdtemp(path.join(tmpdir(), 'cnki-outside-'))
+    try {
+      await writeFile(path.join(outside, 'secret.ris'), RIS, 'utf8')
+      await symlink(path.join(outside, 'secret.ris'), path.join(workspace, 'linked.ris'))
+      await expect(runtime().import({ path: 'linked.ris' })).rejects.toMatchObject({ code: 'PATH_ESCAPE' })
+    } finally {
+      if (outside.startsWith(tmpdir())) await rm(outside, { recursive: true, force: true })
+    }
+  })
 })
 
 describe('tools', () => {
@@ -111,6 +122,19 @@ describe('tools', () => {
     expect(noRecords.error.code).toBe('NO_RECORDS')
     const noCite = (await makeCnkiCiteTool(runtime()).execute({ records: [] }, EXEC)) as { ok: false; error: { code: string } }
     expect(noCite.error.code).toBe('INVALID_INPUT')
+
+    const nullText = await runtime().import({ text: null as never }).then(
+      () => undefined,
+      (error: { code?: string }) => error,
+    )
+    expect(nullText?.code).toBe('INVALID_INPUT')
+    const malformedCite = (await makeCnkiCiteTool(runtime()).execute({ records: [{}] }, EXEC)) as { ok: false; error: { code: string } }
+    expect(malformedCite.error.code).toBe('INVALID_INPUT')
+    const malformedCheck = (await makeCnkiCheckTool(runtime()).execute({ records: [null] }, EXEC)) as { ok: false; error: { code: string } }
+    expect(malformedCheck.error.code).toBe('INVALID_INPUT')
+    const imported = (await makeCnkiImportTool(runtime()).execute({ path: 'export.ris' }, EXEC)) as { ok: true; records: BibRecord[] }
+    const badStart = (await makeCnkiCiteTool(runtime()).execute({ records: imported.records, startIndex: 0 }, EXEC)) as { ok: false; error: { code: string } }
+    expect(badStart.error.code).toBe('INVALID_INPUT')
   })
 })
 

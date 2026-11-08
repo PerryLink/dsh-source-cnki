@@ -90,7 +90,7 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 
 ## Evaluation
 
-**18 tests**: RIS and labeled parsing (Chinese and English records, DOI-based ids, language detection), auto-detection and empty/unrecognized rejection, GB/T journal citation with en-dash pages, ≤3 vs >3 author rules (等 / et al), missing-journal marker, thesis marker, sequential numbering, APA author/year/journal/volume/DOI, validation codes (missing title/journal, implausible year, malformed DOI, odd pages, duplicates), runtime (valid REP record, cite/check, traversal/DOCX/oversize rejection), tool schemas, import→cite→check end to end, failure branches, package contract.
+**23 tests**: RIS and labeled parsing (Chinese and English records, CRLF/BOM exports, DOI-based ids, language detection), auto-detection and empty/unrecognized rejection, GB/T journal citation with en-dash pages, ≤3 vs >3 author rules (等 / et al), missing-journal marker, thesis marker, sequential numbering, APA author/year/journal/volume/DOI, validation codes (missing title/journal, implausible year including far-future dates, malformed DOI, odd pages, duplicates), runtime (valid REP record, cite/check, traversal/symlink/DOCX/oversize rejection, malformed records and `null` text rejected), tool schemas, import→cite→check end to end, failure branches, plugin contract, package contract.
 
 No benchmark is claimed: the ground truth is your export; correctness of the formatter is checked against the GB/T rules above with fixtures.
 
