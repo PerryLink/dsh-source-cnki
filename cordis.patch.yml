@@ -1,0 +1,17 @@
+# dsh-source-cnki bundle patch: mount the Chinese-literature tools.
+#
+# Every key below is a Config field (Schemastery schema); invalid values fail the
+# profile load loudly. Local export parsing only: no login, no scraping, no CNKI
+# API (none is public for this purpose).
+- insert:
+    - id: dsh-source-cnki
+      name: dsh-source-cnki
+      config:
+        enabled: true
+        root: .source-cnki
+        # Character cap for an export: over-limit fails, never truncates.
+        maxChars: 2000000
+        # Store the parsed export as REP evidence + record.
+        persist: true
+        # Default citation style.
+        style: gbt7714-numeric
