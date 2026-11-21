@@ -1,13 +1,22 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-hero-en-dark.webp">
+  <img src="docs/assets/dsh-source-cnki-hero-en-light.webp" width="100%" alt="dsh-source-cnki: an exported RIS record validated structurally — the journal field was removed and the record is reported as missing_journal instead of inventing a journal name, with stable ids and the export left as the ground truth">
+</picture>
+
 # dsh-source-cnki
 
 **Chinese-literature records: import your export, cite it in GB/T 7714, check the metadata — without scraping CNKI.**
 
 *No login, no scraping, no CNKI API (none is public for this purpose). The plugin reads RIS/EndNote-style or labeled text exports, assigns stable record ids, formats GB/T 7714-2015 (顺序编码制) or APA 7, and runs structural validation.*
 
+[简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
+
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24.9-brightgreen.svg)]()
 
-English · [简体中文](README-zh.md)
+</div>
 
 ---
 
@@ -20,6 +29,14 @@ CNKI has no public API for this purpose. This plugin therefore **does not** log 
 - **`cnki_import`** — parses RIS/EndNote-style and labeled text exports, assigns a stable `recordId` (DOI-based when present, otherwise title+year), detects language, and validates structure. The export becomes REP evidence when `persist` is on.
 - **`cnki_cite`** — GB/T 7714-2015 顺序编码制 (`[1] 作者. 题名[J]. 刊名, 年, 卷(期): 页码.`), the same without numbering, or APA 7. Author rules: GB/T ≤3 all, otherwise first 3 + `等`/`et al`; Western names become `SURNAME I`; APA becomes `Surname, I.`.
 - **`cnki_check`** — structural validation: missing title/journal/year/authors, implausible year, malformed DOI, non-numeric pages, duplicates, journal without volume or issue.
+
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-source-cnki-flow-v5-light.svg" width="100%" alt="dsh-source-cnki structure: a RIS or labeled export is parsed into records with stable ids, formatted as GB/T 7714-2015 or APA 7 citations, and validated structurally — missing fields are reported, never invented, and no network is used">
+</picture>
+
+*Structure: parse → format → validate; `records[]` and `citations[]` are the two outputs, `validateRecords` reports structural issues, and nothing is invented when a field is absent. The token labels inside the diagram are the real function and field names, so the same picture serves all five languages.*
 
 ## What it does not do
 
@@ -89,6 +106,11 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 - The export is data. Instruction-like text inside a title or abstract is never executed (there is no executor).
 
 ## Evaluation
+
+![dsh-source-cnki test suite: the real TAP run over import, GB/T 7714 and APA 7 formatting, and structural validation — no network and no CNKI access](docs/assets/dsh-source-cnki-demo.gif)
+
+*Animated: the real `pnpm test --reporter=tap-flat` run of the import → GB/T 7714 / APA 7 → validation suite (no network, no CNKI access; re-run 2026-11-21). Each `ok` line is one test from the suite; the timings are from this run.*
+
 
 **23 tests**: RIS and labeled parsing (Chinese and English records, CRLF/BOM exports, DOI-based ids, language detection), auto-detection and empty/unrecognized rejection, GB/T journal citation with en-dash pages, ≤3 vs >3 author rules (等 / et al), missing-journal marker, thesis marker, sequential numbering, APA author/year/journal/volume/DOI, validation codes (missing title/journal, implausible year including far-future dates, malformed DOI, odd pages, duplicates), runtime (valid REP record, cite/check, traversal/symlink/DOCX/oversize rejection, malformed records and `null` text rejected), tool schemas, import→cite→check end to end, failure branches, plugin contract, package contract.
 

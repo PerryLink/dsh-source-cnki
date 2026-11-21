@@ -1,13 +1,22 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-hero-zh-dark.webp">
+  <img src="docs/assets/dsh-source-cnki-hero-zh-light.webp" width="100%" alt="dsh-source-cnki 配图：一条导出的 RIS 记录做结构校验 —— journal 字段被移除后如实报为 missing_journal，而不是编造刊名；右侧是稳定记录 id，导出文件本身即真值">
+</picture>
+
 # dsh-source-cnki
 
-**中文文献记录：导入你自己的导出文件，按 GB/T 7714 引用，检查元数据——全程不抓取 CNKI。**
+**中文文献记录：导入你自己的导出文件、按 GB/T 7714 引用、检查元数据 —— 全程不抓取 CNKI。**
 
 *不登录、不抓取、不调用 CNKI API（该用途没有公开 API）。插件读取 RIS/EndNote 风格或带标签的文本导出，分配稳定的记录 id，按 GB/T 7714-2015（顺序编码制）或 APA 7 排版，并做结构校验。*
+
+[English](README.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24.9-brightgreen.svg)]()
 
-[English](README.md) · 简体中文
+</div>
 
 ---
 
@@ -20,6 +29,14 @@ CNKI 没有面向此用途的公开 API。因此本插件**不会**登录、抓�
 - **`cnki_import`** — 解析 RIS/EndNote 风格和带标签的文本导出，分配稳定的 `recordId`（有 DOI 时基于 DOI，否则基于标题+年份），识别语言并校验结构。开启 `persist` 时，导出会成为 REP 证据。
 - **`cnki_cite`** — 支持 GB/T 7714-2015 顺序编码制（`[1] 作者. 题名[J]. 刊名, 年, 卷(期): 页码.`）、同样格式但不带编号，或 APA 7。作者规则：GB/T 在作者不超过 3 位时全部列出，否则列前 3 位 + `等`/`et al`；西文姓名转为 `SURNAME I`；APA 转为 `Surname, I.`。
 - **`cnki_check`** — 结构校验：缺少标题/期刊/年份/作者、年份不合理、DOI 格式错误、页码非数字、重复记录，以及有期刊但没有卷或期。
+
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-source-cnki-flow-v5-light.svg" width="100%" alt="dsh-source-cnki 结构图：RIS 或带标签导出被解析成带稳定 id 的记录，按 GB/T 7714-2015 或 APA 7 排版，并做结构校验 —— 缺字段只报告、不臆造，全程不联网">
+</picture>
+
+*结构：解析 → 排版 → 校验；`records[]` 与 `citations[]` 是两条输出，`validateRecords` 报告结构问题，字段缺失时绝不编造。图内只有真实的函数名与字段名，五语共用同一张结构图。*
 
 ## 它不做什么
 
@@ -89,6 +106,11 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 - 导出文件视为数据。标题或摘要中的指令性文本永远不会被执行（没有执行器）。
 
 ## 评测
+
+![dsh-source-cnki 测试套件：导入、GB/T 7714 与 APA 7 排版、结构校验的真实 TAP 运行 —— 不联网、不访问 CNKI](docs/assets/dsh-source-cnki-demo.gif)
+
+*动图是 `pnpm test --reporter=tap-flat` 的真实运行（导入 → GB/T 7714 / APA 7 → 校验；不联网、不访问 CNKI；2026-11-21 复跑）。每个 `ok` 行是套件里的一条测试，耗时来自本次运行。*
+
 
 **23 个测试**：RIS 与带标签解析（中英文记录、CRLF/BOM 导出、基于 DOI 的 id、语言识别）、自动格式识别与空内容/无法识别内容的拒绝、GB/T 期刊引用（页码使用 en dash 连接）、≤3 位与 >3 位作者规则（等 / et al）、缺期刊标记、学位论文标记、顺序编号、APA 的作者/年份/期刊/卷/DOI、校验代码（缺标题/期刊、不合理年份（含极远未来日期）、DOI 格式错误、页码异常、重复）、运行时（有效 REP 记录、cite/check、路径穿越/符号链接/DOCX/超大文件拒绝、畸形记录与 `null` 文本拒绝）、工具 schema、import→cite→check 端到端、失败分支、插件契约、包契约。
 
