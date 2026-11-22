@@ -30,7 +30,6 @@ O CNKI não tem API pública para este propósito. Por isso este plugin **não**
 - **`cnki_cite`** — GB/T 7714-2015 顺序编码制 (`[1] 作者. 题名[J]. 刊名, 年, 卷(期): 页码.`), o mesmo sem numeração, ou APA 7. Regras de autores: GB/T até 3 todos, senão os 3 primeiros + `等`/`et al`; nomes ocidentais viram `SURNAME I`; APA vira `Surname, I.`.
 - **`cnki_check`** — validação estrutural: título/periódico/ano/autores ausentes, ano implausível, DOI malformado, páginas não numéricas, duplicatas, periódico sem volume nem número.
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-flow-v5-dark.svg">
   <img src="docs/assets/dsh-source-cnki-flow-v5-light.svg" width="100%" alt="dsh-source-cnki estrutura: uma exportação RIS ou rotulada é analisada em registros com ids estáveis, formatada como citações GB/T 7714-2015 ou APA 7, e validada estruturalmente — campos ausentes são reportados, nunca inventados, e nenhuma rede é usada">
@@ -77,7 +76,7 @@ Tags desconhecidas são ignoradas, não adivinhadas.
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`** (verificado em 2026-11-18); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`** (verificado em 2026-11-22); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0` (testado em `24.22.1`), somente ESM |
 | Peers | `@perrylink/dsh-research-core ^0.1.0`, `@deepseek-ai/cordis ^4.0.5-alpha.1`, `@deepseek-ai/dsh-tools`, `@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | Dependências em tempo de execução | **zero** |
@@ -110,7 +109,6 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 ![dsh-source-cnki suíte de testes: a execução TAP real sobre importação, formatação GB/T 7714 e APA 7, e validação estrutural — sem rede e sem acesso ao CNKI](docs/assets/dsh-source-cnki-demo.gif)
 
 *Animado: a execução real de `pnpm test --reporter=tap-flat` da suíte importação → GB/T 7714 / APA 7 → validação (sem rede, sem acesso ao CNKI; reexecutada em 2026-11-21). Cada linha `ok` é um teste da suíte; os tempos são desta execução.*
-
 
 **24 testes**: análise RIS e de texto rotulado (registros chineses e ingleses, exportações CRLF/BOM, ids baseados em DOI, detecção de idioma), detecção automática e rejeição de vazio/não reconhecido, citação de periódico GB/T com páginas em travessão, regras de ≤3 vs >3 autores (等 / et al), marcador de periódico ausente, marcador de tese, numeração sequencial, autor/ano/periódico/volume/DOI da APA, códigos de validação (título/periódico ausentes, ano implausível incluindo futuro distante, DOI malformado, páginas ímpares, duplicatas), runtime (registro REP válido, cite/check, rejeição de travessia/link simbólico/DOCX/tamanho excessivo, registros malformados e texto `null` rejeitados), esquemas de ferramentas, import→cite→check de ponta a ponta, ramos de falha, contrato do plugin, contrato do pacote.
 

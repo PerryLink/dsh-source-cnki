@@ -30,7 +30,6 @@ CNKI has no public API for this purpose. This plugin therefore **does not** log 
 - **`cnki_cite`** — GB/T 7714-2015 顺序编码制 (`[1] 作者. 题名[J]. 刊名, 年, 卷(期): 页码.`), the same without numbering, or APA 7. Author rules: GB/T ≤3 all, otherwise first 3 + `等`/`et al`; Western names become `SURNAME I`; APA becomes `Surname, I.`.
 - **`cnki_check`** — structural validation: missing title/journal/year/authors, implausible year, malformed DOI, non-numeric pages, duplicates, journal without volume or issue.
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-flow-v5-dark.svg">
   <img src="docs/assets/dsh-source-cnki-flow-v5-light.svg" width="100%" alt="dsh-source-cnki structure: a RIS or labeled export is parsed into records with stable ids, formatted as GB/T 7714-2015 or APA 7 citations, and validated structurally — missing fields are reported, never invented, and no network is used">
@@ -77,7 +76,7 @@ Unknown tags are ignored, not guessed.
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`** (verified 2026-11-18); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`** (verified 2026-11-22); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0` (tested `24.22.1`), ESM only |
 | Peers | `@perrylink/dsh-research-core ^0.1.0`, `@deepseek-ai/cordis ^4.0.5-alpha.1`, `@deepseek-ai/dsh-tools`, `@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | Runtime dependencies | **zero** |
@@ -110,7 +109,6 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 ![dsh-source-cnki test suite: the real TAP run over import, GB/T 7714 and APA 7 formatting, and structural validation — no network and no CNKI access](docs/assets/dsh-source-cnki-demo.gif)
 
 *Animated: the real `pnpm test --reporter=tap-flat` run of the import → GB/T 7714 / APA 7 → validation suite (no network, no CNKI access; re-run 2026-11-21). Each `ok` line is one test from the suite; the timings are from this run.*
-
 
 **24 tests**: RIS and labeled parsing (Chinese and English records, CRLF/BOM exports, DOI-based ids, language detection), auto-detection and empty/unrecognized rejection, GB/T journal citation with en-dash pages, ≤3 vs >3 author rules (等 / et al), missing-journal marker, thesis marker, sequential numbering, APA author/year/journal/volume/DOI, validation codes (missing title/journal, implausible year including far-future dates, malformed DOI, odd pages, duplicates), runtime (valid REP record, cite/check, traversal/symlink/DOCX/oversize rejection, malformed records and `null` text rejected), tool schemas, import→cite→check end to end, failure branches, plugin contract, package contract.
 

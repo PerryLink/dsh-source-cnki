@@ -30,7 +30,6 @@ CNKI no tiene una API pública para este propósito. Por eso este plugin **no** 
 - **`cnki_cite`** — GB/T 7714-2015 顺序编码制 (`[1] 作者. 题名[J]. 刊名, 年, 卷(期): 页码.`), lo mismo sin numeración, o APA 7. Reglas de autores: GB/T hasta 3 todos, si no los 3 primeros + `等`/`et al`; los nombres occidentales pasan a `SURNAME I`; APA pasa a `Surname, I.`.
 - **`cnki_check`** — validación estructural: título/revista/año/autores ausentes, año implausible, DOI mal formado, páginas no numéricas, duplicados, revista sin volumen ni número.
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-flow-v5-dark.svg">
   <img src="docs/assets/dsh-source-cnki-flow-v5-light.svg" width="100%" alt="dsh-source-cnki estructura: una exportación RIS o etiquetada se analiza en registros con ids estables, se formatea como citas GB/T 7714-2015 o APA 7, y se valida estructuralmente — los campos ausentes se reportan, nunca se inventan, y no se usa la red">
@@ -77,7 +76,7 @@ Las etiquetas desconocidas se ignoran, no se adivinan.
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`** (verificado 2026-11-18); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`** (verificado 2026-11-22); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0` (probado en `24.22.1`), solo ESM |
 | Peers | `@perrylink/dsh-research-core ^0.1.0`, `@deepseek-ai/cordis ^4.0.5-alpha.1`, `@deepseek-ai/dsh-tools`, `@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | Dependencias en tiempo de ejecución | **cero** |
@@ -110,7 +109,6 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 ![dsh-source-cnki suite de pruebas: la ejecución TAP real sobre importación, formato GB/T 7714 y APA 7, y validación estructural — sin red y sin acceso a CNKI](docs/assets/dsh-source-cnki-demo.gif)
 
 *Animado: la ejecución real de `pnpm test --reporter=tap-flat` de la suite importación → GB/T 7714 / APA 7 → validación (sin red, sin acceso a CNKI; reejecutada el 2026-11-21). Cada línea `ok` es una prueba de la suite; los tiempos son de esta ejecución.*
-
 
 **24 pruebas**: análisis RIS y de texto etiquetado (registros chinos e ingleses, exportaciones CRLF/BOM, ids basados en DOI, detección de idioma), detección automática y rechazo de vacío/no reconocido, cita de revista GB/T con páginas con guion, reglas de ≤3 vs >3 autores (等 / et al), marcador de revista ausente, marcador de tesis, numeración secuencial, autor/año/revista/volumen/DOI de APA, códigos de validación (título/revista ausentes, año implausible incluido futuro lejano, DOI mal formado, páginas impares, duplicados), runtime (registro REP válido, cite/check, rechazo de travesía/enlace simbólico/DOCX/tamaño excesivo, registros mal formados y texto `null` rechazados), esquemas de herramientas, import→cite→check de extremo a extremo, ramas de fallo, contrato del plugin, contrato del paquete.
 

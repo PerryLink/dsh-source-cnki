@@ -30,7 +30,6 @@ CNKI 没有面向此用途的公开 API。因此本插件**不会**登录、抓�
 - **`cnki_cite`** — 支持 GB/T 7714-2015 顺序编码制（`[1] 作者. 题名[J]. 刊名, 年, 卷(期): 页码.`）、同样格式但不带编号，或 APA 7。作者规则：GB/T 在作者不超过 3 位时全部列出，否则列前 3 位 + `等`/`et al`；西文姓名转为 `SURNAME I`；APA 转为 `Surname, I.`。
 - **`cnki_check`** — 结构校验：缺少标题/期刊/年份/作者、年份不合理、DOI 格式错误、页码非数字、重复记录，以及有期刊但没有卷或期。
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-source-cnki-flow-v5-dark.svg">
   <img src="docs/assets/dsh-source-cnki-flow-v5-light.svg" width="100%" alt="dsh-source-cnki 结构图：RIS 或带标签导出被解析成带稳定 id 的记录，按 GB/T 7714-2015 或 APA 7 排版，并做结构校验 —— 缺字段只报告、不臆造，全程不联网">
@@ -77,7 +76,7 @@ CNKI 没有面向此用途的公开 API。因此本插件**不会**登录、抓�
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`**（2026-11-18 实测）；peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`**（2026-11-22 实测）；peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0`（实测 `24.22.1`），仅 ESM |
 | Peer 依赖 | `@perrylink/dsh-research-core ^0.1.0`、`@deepseek-ai/cordis ^4.0.5-alpha.1`、`@deepseek-ai/dsh-tools`、`@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | 运行时依赖 | **零** |
@@ -110,7 +109,6 @@ dsh --profile <name> --dump-config | grep dsh-source-cnki
 ![dsh-source-cnki 测试套件：导入、GB/T 7714 与 APA 7 排版、结构校验的真实 TAP 运行 —— 不联网、不访问 CNKI](docs/assets/dsh-source-cnki-demo.gif)
 
 *动图是 `pnpm test --reporter=tap-flat` 的真实运行（导入 → GB/T 7714 / APA 7 → 校验；不联网、不访问 CNKI；2026-11-21 复跑）。每个 `ok` 行是套件里的一条测试，耗时来自本次运行。*
-
 
 **24 个测试**：RIS 与带标签解析（中英文记录、CRLF/BOM 导出、基于 DOI 的 id、语言识别）、自动格式识别与空内容/无法识别内容的拒绝、GB/T 期刊引用（页码使用 en dash 连接）、≤3 位与 >3 位作者规则（等 / et al）、缺期刊标记、学位论文标记、顺序编号、APA 的作者/年份/期刊/卷/DOI、校验代码（缺标题/期刊、不合理年份（含极远未来日期）、DOI 格式错误、页码异常、重复）、运行时（有效 REP 记录、cite/check、路径穿越/符号链接/DOCX/超大文件拒绝、畸形记录与 `null` 文本拒绝）、工具 schema、import→cite→check 端到端、失败分支、插件契约、包契约。
 
