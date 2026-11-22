@@ -7,6 +7,8 @@
 
 # dsh-source-cnki
 
+当前版本 `0.1.4`。
+
 **Chinese-literature records: import your export, cite it in GB/T 7714, check the metadata — without scraping CNKI.**
 
 *No login, no scraping, no CNKI API (none is public for this purpose). The plugin reads RIS/EndNote-style or labeled text exports, assigns stable record ids, formats GB/T 7714-2015 (顺序编码制) or APA 7, and runs structural validation.*
